@@ -6,7 +6,7 @@ import java.io.Serializable;
 @Embeddable
 public class RouteEdge implements Serializable {
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name ="origin")
     private UniversalNode origin;
 
@@ -26,7 +26,7 @@ public class RouteEdge implements Serializable {
         this.dest = dest;
     }
 
-    @ManyToOne(fetch = FetchType.LAZY)
+    @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name ="dest")
     private UniversalNode dest;
 
