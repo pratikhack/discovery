@@ -20,18 +20,20 @@ public class UniversalPathwayServiceImpl implements UniversalPathwayService {
     InterStellarNodeRepo interStellarNodeRepo;
 
     private  Map<UniversalNode, UniversalNode> shortestPaths;
-
+    private static Map<UniversalNode, UniversalNode> cacheShortestPaths = null;
+    private static UniversalNode previousNode =null;
     @Override
     public String getShortestPath(String source, String dest) {
 
         UniversalNode sourceNode = interStellarNodeRepo.findUniversalNodeByNode(source);
         UniversalNode destNode = interStellarNodeRepo.findUniversalNodeByNode(dest);
         //fetching cached results first.
+
         // TODO validate cache.
-        if (shortestPaths != null) {
-            return createShortestPathBetweenSourceAndDest(shortestPaths, destNode);
+        if(cacheShortestPaths!=null && previousNode==sourceNode) {
+            return createShortestPathBetweenSourceAndDest(cacheShortestPaths, destNode);
         }
-         shortestPaths = new LinkedHashMap<>();
+        shortestPaths = new LinkedHashMap<>();
         List<UniversalNode> unvisited = interStellarNodeRepo.findAll();
         int noOfNodes = unvisited.size();
         Set<UniversalNode> unvisitedSet = new LinkedHashSet<>(unvisited);
@@ -79,17 +81,20 @@ public class UniversalPathwayServiceImpl implements UniversalPathwayService {
 
                 if (currentDist < nodeDistanceMap.get(fromSourceToNeighbourDistance)) {
                     nodeDistanceMap.put(fromSourceToNeighbourDistance, currentDist);
-                    shortestPaths.put(neighbourNode, currentNode);
+                  shortestPaths.put(neighbourNode, currentNode);
                 }
             }
 
             UniversalNode auxNode = calculateMinimumFromUnvisitedNodes(nodeDistanceMap, visitedSet, sourceNode);
+
             currentNode = auxNode;
             visitedSet.add(currentNode);
             unvisitedSet.remove(currentNode);
         }
 
-        return createShortestPathBetweenSourceAndDest(shortestPaths, destNode);
+        cacheShortestPaths = shortestPaths;
+        previousNode = sourceNode;
+        return createShortestPathBetweenSourceAndDest(cacheShortestPaths, destNode);
 
     }
 
@@ -143,7 +148,7 @@ public class UniversalPathwayServiceImpl implements UniversalPathwayService {
             if (route.getRouteEdge().getOrigin().equals(universalNode) && !(visitedSet.contains(route.getRouteEdge().getDest()))) {
                 universalNodes.add(route.getRouteEdge().getDest());
             }
-            if (route.getRouteEdge().getDest().equals(universalNode) && !(visitedSet.contains(route.getRouteEdge().getDest()))) {
+            if (route.getRouteEdge().getDest().equals(universalNode) && !(visitedSet.contains(route.getRouteEdge().getOrigin()))) {
                 universalNodes.add(route.getRouteEdge().getOrigin());
             }
         }
