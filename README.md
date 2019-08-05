@@ -47,7 +47,7 @@ To Test the application:
 2. Run java -jar <Genereated jar file> from command line.
 
 3. Use rest client like Postman or soap client like SOAP UI
-to test the application
+to test the application. Please check images in testing_screenshots for examples.
 
 Note: Input valid value does not return a proper message right now,
 that's got to change in future. Please bear with me.
